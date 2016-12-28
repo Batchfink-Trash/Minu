@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin</title>
+    </head>
+    <body>
+        <h1>This is the admin section how tf am I going to do password shiz on this</h1>
+        <form action="admin/new" method="post">
+            <h2>Id</h2>
+            <input type="text" name="Id" value="@Model.Id" />
+            <h2>Author</h2>
+            <input type="text" name="Author" value="@Model.Author_" />
+            <h2>Date</h2>
+            <input type="date" name="Date" value="@Model.Date" />
+            <h2>Title</h2>
+            <input type="text" name="Title" value="@Model.Title" />
+            <h2>Content</h2>
+            <input type="text" name="Content" value="@Model.Content" />
+            <input type="submit" value="Add post" />
+        </form>
+    </body>
+</html>
