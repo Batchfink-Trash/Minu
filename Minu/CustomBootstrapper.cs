@@ -5,6 +5,7 @@ using System.Web;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
+using Nancy.Authentication.Forms;
 using System.IO;
 using System.Data.SQLite;
 

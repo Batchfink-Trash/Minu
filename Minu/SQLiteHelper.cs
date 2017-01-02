@@ -49,6 +49,19 @@ namespace Minu
             }
         }
 
+        public object SendScalarQuery(string sql)
+        {
+            try
+            {
+                command = new SQLiteCommand(sql, dbConnection);
+                return command.ExecuteScalar();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         /// <summary>
         /// Used to make SQL queries that return information.  Retun the ExecuteReader to handle information coming out.
         /// </summary>
@@ -103,76 +116,24 @@ namespace Minu
         //  TAKE CLASS AND READER
         //  BASICALLY THE MAIN BIT OF THE TWO EXISITING FUNCTIONS
 
-
-        /// <summary>
-        /// Bind a single record to a class.  The Primary Key must be called id
-        /// If for some reason more than one record is found, the last one is returned
-        /// </summary>
-        /// <typeparam name="T">Class to bind to</typeparam>
-        /// <param name="table">Table to take record from</param>
-        /// <param name="id">ID of record to take</param>
-        /// <returns></returns>
-        public T BindRecordToClass<T>(string table, int id) where T : new()
+        public List<T> BindRecordToClass<T>(string table, int? id = null) where T : new()
         {
-            T returnClass = new T();
+            string whereState = "";
 
+            if(id != null)
+            {
+                whereState = " where id = " + id;
+            }
             //Count rows in table
-            command = new SQLiteCommand("select count(id) from " + table + ";", dbConnection);
+            command = new SQLiteCommand("select count(id) from " + table + whereState + ";", dbConnection);
             int rowCount = 0;
             rowCount = Convert.ToInt32(command.ExecuteScalar());
 
             //Get all values from table
-            command = new SQLiteCommand("select * from " + table + " where id = " + id + ";", dbConnection);
+            command = new SQLiteCommand("select * from " + table + whereState + ";", dbConnection);
             SQLiteDataReader reader = command.ExecuteReader();
 
-            //Get properties from class
-            PropertyInfo[] props = typeof(T).GetProperties();
-
-            //loop through items in database and compare them to class properties
-            while (reader.Read())
-            {
-                //Loop through rows in table
-                for (int i = 0; i < rowCount; i++)
-                {
-                    T tempClass = new T();
-                    //Loop through properties in class
-                    foreach (PropertyInfo property in props)
-                    {
-                        //Try to get property of class from database.  If the field isn't there, set to null
-                        try
-                        {
-                            if (property.PropertyType == typeof(DateTime))
-                            {
-                                DateTime date = DateTime.Parse((string)reader[property.Name]);
-                                property.SetValue(tempClass, date);
-                            }
-                            else if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(Boolean))
-                            {
-                                if (Convert.ToInt32(reader[property.Name]) == 1)
-                                {
-                                    property.SetValue(tempClass, true);
-                                }
-                                else
-                                {
-                                    property.SetValue(tempClass, false);
-                                }
-                            }
-                            else
-                            {
-                                property.SetValue(tempClass, Convert.ChangeType(reader[property.Name], property.PropertyType));
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            //throw e;
-                            property.SetValue(tempClass, null);
-                        }
-                        returnClass = tempClass;
-                    }
-                }
-            }
-            Console.WriteLine("Done binding");
-            return (returnClass);
+            return BindReaderToClass<T>(reader, rowCount);
         }
 
         /// <summary>provided
@@ -181,20 +142,11 @@ namespace Minu
         /// <typeparam name="T">Class to bind to</typeparam>
         /// <param name="table">Table to take values from</param>
         /// <returns></returns>
-        public List<T> BindRecordToClass<T>(string table) where T : new()
+        public List<T> BindReaderToClass<T>(SQLiteDataReader reader, int rowCount) where T : new()
         {
             //Initialise a class of T.  
             //This means the method can only take classes that are perameterless, which should be fine for models
             List<T> returnClassList = new List<T>();
-
-            //Count rows in table
-            command = new SQLiteCommand("select count(id) from " + table + ";", dbConnection);
-            int rowCount = 0;
-            rowCount = Convert.ToInt32(command.ExecuteScalar());
-
-            //Get all values from table
-            command = new SQLiteCommand("select * from " + table + ";", dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
 
             //Get properties from class
             PropertyInfo[] props = typeof(T).GetProperties();
@@ -202,46 +154,42 @@ namespace Minu
             //loop through items in database and compare them to class properties
             while (reader.Read())
             {
-                //Loop through rows in table
-                for(int i = 0; i < rowCount; i++)
+                T tempClass = new T();
+                //Loop through properties in class
+                foreach (PropertyInfo property in props)
                 {
-                    T tempClass = new T();
-                    //Loop through properties in class
-                    foreach (PropertyInfo property in props)
+                    //Try to get property of class from database.  If the field isn't there, set to null
+                    try
                     {
-                        //Try to get property of class from database.  If the field isn't there, set to null
-                        try
+                        if(property.PropertyType == typeof(DateTime))
                         {
-                            if(property.PropertyType == typeof(DateTime))
+                            DateTime date = DateTime.Parse((string)reader[property.Name]);
+                            property.SetValue(tempClass, date);
+                        }
+                        else if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(Boolean))
+                        {
+                            if(Convert.ToInt32(reader[property.Name]) == 1)
                             {
-                                DateTime date = DateTime.Parse((string)reader[property.Name]);
-                                property.SetValue(tempClass, date);
-                            }
-                            else if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(Boolean))
-                            {
-                                if(Convert.ToInt32(reader[property.Name]) == 1)
-                                {
-                                    property.SetValue(tempClass, true);
-                                }
-                                else
-                                {
-                                    property.SetValue(tempClass, false);
-                                }
+                                property.SetValue(tempClass, true);
                             }
                             else
                             {
-                                property.SetValue(tempClass, Convert.ChangeType(reader[property.Name], property.PropertyType));
+                                property.SetValue(tempClass, false);
                             }
                         }
-                        catch (Exception e)
+                        else
                         {
-                            //throw e;
-                            property.SetValue(tempClass, null);
+                            property.SetValue(tempClass, Convert.ChangeType(reader[property.Name], property.PropertyType));
                         }
                     }
-                    //Append class to list
-                    returnClassList.Add(tempClass);
+                    catch (Exception e)
+                    {
+                        //throw e;
+                        property.SetValue(tempClass, null);
+                    }
                 }
+                //Append class to list
+                returnClassList.Add(tempClass);
             }
             Console.WriteLine("Done binding");
             return (returnClassList);
