@@ -6,6 +6,7 @@ using Nancy;
 using Minu.Models;
 using Nancy.ModelBinding;
 using System.Data.SQLite;
+using Nancy.Security;
 
 namespace Minu.Modules
 {
@@ -16,6 +17,7 @@ namespace Minu.Modules
         /// </summary>
         public AdminModule(SQLiteHelper DBHelper) : base("/admin")
         {
+            this.RequiresAuthentication();
             //Return the admin dashboard
             Get["/"] = perameters =>
             {

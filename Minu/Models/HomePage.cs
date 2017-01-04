@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace Minu.Models
 {
@@ -13,13 +12,10 @@ namespace Minu.Models
         /// This defines the blog's title, subtitle and gives a list of recent articles.
         /// </summary>
         
-        [Required]
         public string BlogName { get; set; }
-
-        [Required]
+        
         public string SubTitle { get; set; }
-
-        [Required]
+        
         public List<BlogPost> RecentArticles { get; set; }
 
         public HomePage()

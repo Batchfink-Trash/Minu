@@ -127,6 +127,10 @@
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
       <Private>True</Private>
@@ -160,11 +164,13 @@
     <Compile Include="Models\Author.cs" />
     <Compile Include="Models\BlogPost.cs" />
     <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Modules\LoginModule.cs" />
     <Compile Include="SQLiteHelper.cs" />
     <Compile Include="Models\HomePage.cs" />
     <Compile Include="Modules\AdminModule.cs" />
     <Compile Include="Modules\PublicModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
@@ -177,6 +183,7 @@
     <Content Include="Views\Public\BlogPost.cshtml" />
     <Content Include="Views\Public\HomePage.cshtml" />
     <Content Include="Views\Admin\Admin.cshtml" />
+    <Content Include="Views\Login\login.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

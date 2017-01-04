@@ -11,7 +11,6 @@ namespace Minu
 {
     public class SQLiteHelper
     {
-        private string connectionString;
         public SQLiteConnection dbConnection { get; private set; }
         private SQLiteCommand command;
 
@@ -116,13 +115,14 @@ namespace Minu
         //  TAKE CLASS AND READER
         //  BASICALLY THE MAIN BIT OF THE TWO EXISITING FUNCTIONS
 
-        public List<T> BindRecordToClass<T>(string table, int? id = null) where T : new()
+        public List<T> BindRecordToClass<T>(string table, string where = null) where T : new()
         {
             string whereState = "";
 
-            if(id != null)
+            if(where != null)
             {
-                whereState = " where id = " + id;
+                //pad where with spaces
+                whereState = " " + where + " ";
             }
             //Count rows in table
             command = new SQLiteCommand("select count(id) from " + table + whereState + ";", dbConnection);
