@@ -35,8 +35,7 @@ namespace Minu
             // As this is now per-request we could inject a request scoped
             // database "context" or other request scoped services.
             //Give UserDatabase the application wide SQLiteHelper class
-            UserDatabase UD = new UserDatabase();
-            UD.DBHelper = DBHelper;
+            UserDatabase UD = new UserDatabase(DBHelper);
             container.Register<IUserMapper, UserDatabase>();
         }
 

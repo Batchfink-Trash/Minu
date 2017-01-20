@@ -12,7 +12,7 @@ namespace Minu.Models
         /// It requires a unique ID, an author, title and content.
         /// Tags will follow 
         /// </summary>
-        public Int64 id { get; set; }
+        public string id { get; set; }
 
         //[Required]
         //public Author Author_ { get; set; }
@@ -33,9 +33,7 @@ namespace Minu.Models
         //public List<string> Tags { get; set; }
 
         public BlogPost()
-        {
-            Url += id;
-            
+        {            
             //Tags = new List<string>();
         }
     }
