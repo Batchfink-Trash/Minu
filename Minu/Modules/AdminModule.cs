@@ -30,14 +30,14 @@ namespace Minu.Modules
                 //Take info, bind to model and save to database.
                 var newPost = this.Bind<BlogPost>("id", "AuthorID", "Date");
 
-                //Set id by adding 1 to the number of posts already in the table
-                newPost.id = Convert.ToInt64(DBHelper.SendScalarQuery("select count(*) from posts")) + 1;
+                //unique GUIDs change db datatype to text
+                newPost.id = Guid.NewGuid().ToString();
 
                 //Set AuthorID from session cookies or something.
                 newPost.AuthorID = 1;
                 
                 //Set Date
-                newPost.Date = DateTime.Today;
+                newPost.Date = DateTime.Now;
 
                 //Insert new post into the table
                 DBHelper.InsertRecord<BlogPost>(newPost, "posts");

@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Reflection;
 
+//I SHOULD HAVE USED PERAMETERS BUT 300+ LINES LATER I DON'T FEEL LIKE CHANGING IT RIGHT NOW
 namespace Minu
 {
     public class SQLiteHelper
@@ -122,18 +123,18 @@ namespace Minu
             if(where != null)
             {
                 //pad where with spaces
-                whereState = " " + where + " ";
+                whereState = " " + where;
             }
             //Count rows in table
-            command = new SQLiteCommand("select count(id) from " + table + whereState + ";", dbConnection);
+            /*command = new SQLiteCommand("select count(id) from " + table + whereState + ";", dbConnection);
             int rowCount = 0;
-            rowCount = Convert.ToInt32(command.ExecuteScalar());
+            rowCount = Convert.ToInt32(command.ExecuteScalar());*/
 
             //Get all values from table
             command = new SQLiteCommand("select * from " + table + whereState + ";", dbConnection);
             SQLiteDataReader reader = command.ExecuteReader();
 
-            return BindReaderToClass<T>(reader, rowCount);
+            return BindReaderToClass<T>(reader);
         }
 
         /// <summary>provided
@@ -142,7 +143,7 @@ namespace Minu
         /// <typeparam name="T">Class to bind to</typeparam>
         /// <param name="table">Table to take values from</param>
         /// <returns></returns>
-        public List<T> BindReaderToClass<T>(SQLiteDataReader reader, int rowCount) where T : new()
+        public List<T> BindReaderToClass<T>(SQLiteDataReader reader) where T : new()
         {
             //Initialise a class of T.  
             //This means the method can only take classes that are perameterless, which should be fine for models
@@ -177,12 +178,16 @@ namespace Minu
                                 property.SetValue(tempClass, false);
                             }
                         }
+                        else if(property.PropertyType == typeof(Guid))
+                        {
+                            property.SetValue(tempClass, Guid.Parse((string)reader[property.Name]));
+                        }
                         else
                         {
                             property.SetValue(tempClass, Convert.ChangeType(reader[property.Name], property.PropertyType));
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         //throw e;
                         property.SetValue(tempClass, null);
@@ -233,7 +238,7 @@ namespace Minu
                 else if(property.PropertyType == typeof(DateTime))
                 {
                     DateTime dt = (DateTime)property.GetValue(data, null);
-                    commandStr += '\'' + dt.ToString("yyyy:MM:dd") + '\'' + ", ";
+                    commandStr += '\'' + dt.ToString("yyyy-MM-dd") + '\'' + ", ";
                 }
                 else if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(Boolean))
                 {

@@ -18,15 +18,24 @@
 
         public SQLiteHelper DBHelper;
 
-        public UserDatabase()
+        public UserDatabase(SQLiteHelper help)
         {
-            
+            DBHelper = help;
         }
 
         public IUserIdentity GetUserFromIdentifier(Guid identifier, NancyContext context)
         {
-            string whereStr = "where id='" + identifier.ToString() + "'";
-            var userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+            string whereStr = "where id='" + identifier.ToString().ToUpper() + "'";
+
+            var userRecord = new UserModel();
+            try
+            {
+                userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+            }
+            catch (Exception)
+            {
+                userRecord = null;
+            }
 
             return userRecord == null
                        ? null
@@ -36,8 +45,17 @@
         public static Guid? ValidateUser(string username, string password, SQLiteHelper DBHelper)
         {
             //ENCRYPT PASSWORDS FOR THE LOVE OF GOD
-            string whereStr = "where UserName='" + username + "' and password='" + password + "'";
-            var userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+            //Construct SQL statement sanitizing inputs  I SHOULD HAVE USED PERAMETERS BUT 300+ LINES LATER I DON'T FEEL LIKE CHANGING IT RIGHT NOW
+            string whereStr = "where UserName='" + username.Replace("'", "''") + "' and password='" + password.Replace("'", "''") + "'";
+            var userRecord = new UserModel();
+            try
+            {
+                userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+            }
+            catch (Exception)
+            {
+                userRecord = null;
+            }
 
             if (userRecord == null)
             {

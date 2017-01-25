@@ -61,7 +61,7 @@ namespace Minu.Modules
             {
                 //Get blog post with ID of 'id' and return it in a View.
                 //TODO
-                BlogPost returnPost = DBHelper.BindRecordToClass<BlogPost>("posts", "where id = " + (string)perameters.id)[0];
+                BlogPost returnPost = DBHelper.BindRecordToClass<BlogPost>("posts", "where id like '" + perameters.id[0] + "'");
 
                 return View["BlogPost", returnPost];
             };
