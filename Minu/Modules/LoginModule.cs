@@ -1,20 +1,28 @@
-﻿using System;
-using System.Dynamic;
-
+﻿using Minu.Models;
+using MongoDB.Bson;
 using Nancy;
 using Nancy.Authentication.Forms;
 using Nancy.Extensions;
+using System;
+using System.Dynamic;
 
 namespace Minu.Modules
 {
     public class LoginModule : NancyModule
     {
-        public LoginModule(SQLiteHelper DBHelper)
+        public LoginModule(MongoHelper DBHelper)
         {
             Get["/login"] = args =>
             {
                 dynamic model = new ExpandoObject();
                 model.Errored = this.Request.Query.error.HasValue;
+
+                /*UserModel newUsr = new UserModel();
+                newUsr.id = new Guid();
+                newUsr.UserName = "admin";
+                newUsr.Password = "1234";
+
+                DBHelper.insertRecord<UserModel>(newUsr, "users");*/
 
                 return View["login", model];
             };

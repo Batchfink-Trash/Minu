@@ -7,18 +7,18 @@ using Nancy.Bootstrapper;
 using Nancy.TinyIoc;
 using Nancy.Authentication.Forms;
 using System.IO;
-using System.Data.SQLite;
+using MongoDB.Driver;
 
 namespace Minu
 {
     public class CustomBootstrapper : DefaultNancyBootstrapper
     {
-        SQLiteHelper DBHelper = new SQLiteHelper(@"C:\Users\James\Documents\Visual Studio 2015\Projects\Minu\Minu\bin\BlogDB.sqlite");
+        MongoHelper DBHelper = new MongoHelper("blog");
         protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
         {
             base.ConfigureApplicationContainer(container);
             //Register SQLiteHelper when the application begins
-            container.Register<SQLiteHelper>(DBHelper);
+            container.Register<MongoHelper>(DBHelper);
         }
 
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)

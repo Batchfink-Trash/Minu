@@ -5,7 +5,6 @@ using System.Web;
 using Nancy;
 using Minu.Models;
 using Nancy.ModelBinding;
-using System.Data.SQLite;
 using Nancy.Security;
 
 namespace Minu.Modules
@@ -15,7 +14,7 @@ namespace Minu.Modules
         /// <summary>
         /// This returns the view for the admin section
         /// </summary>
-        public AdminModule(SQLiteHelper DBHelper) : base("/admin")
+        public AdminModule(MongoHelper DBHelper) : base("/admin")
         {
             this.RequiresAuthentication();
             //Return the admin dashboard
@@ -40,7 +39,7 @@ namespace Minu.Modules
                 newPost.Date = DateTime.Now;
 
                 //Insert new post into the table
-                DBHelper.InsertRecord<BlogPost>(newPost, "posts");
+                DBHelper.insertRecord<BlogPost>(newPost, "posts");
                 return Response.AsRedirect("/");
             };
         }

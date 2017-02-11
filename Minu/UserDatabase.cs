@@ -1,24 +1,22 @@
 ﻿namespace Minu
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Security.Principal;
-
+    using Minu.Models;
+    using MongoDB.Bson;
+    using MongoDB.Driver;
     using Nancy;
     using Nancy.Authentication.Forms;
     using Nancy.Security;
-    using Minu.Models;
-
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     public class UserDatabase : IUserMapper
     {
 
         private List<UserModel> users = new List<UserModel>();
 
-        public SQLiteHelper DBHelper;
+        public MongoHelper DBHelper;
 
-        public UserDatabase(SQLiteHelper help)
+        public UserDatabase(MongoHelper help)
         {
             DBHelper = help;
         }
@@ -30,7 +28,11 @@
             var userRecord = new UserModel();
             try
             {
-                userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+                // Get user record from database
+                var filter = Builders<BsonDocument>.Filter.Eq("id", identifier.ToString().ToUpper());
+                List<BsonDocument> queryResult = DBHelper.findRecordsSync("users", filter);
+                // Get first user returned
+                userRecord = DBHelper.fromBsonDoc<UserModel>(queryResult[0]);
             }
             catch (Exception)
             {
@@ -42,15 +44,20 @@
                        : userRecord;
         }
 
-        public static Guid? ValidateUser(string username, string password, SQLiteHelper DBHelper)
+        public static Guid? ValidateUser(string username, string password, MongoHelper DBHelper)
         {
-            //ENCRYPT PASSWORDS FOR THE LOVE OF GOD
-            //Construct SQL statement sanitizing inputs  I SHOULD HAVE USED PERAMETERS BUT 300+ LINES LATER I DON'T FEEL LIKE CHANGING IT RIGHT NOW
-            string whereStr = "where UserName='" + username.Replace("'", "''") + "' and password='" + password.Replace("'", "''") + "'";
+            // ENCRYPT PASSWORDS FOR THE LOVE OF GOD
+            // Construct SQL statement sanitizing inputs  I SHOULD HAVE USED PERAMETERS BUT 300+ LINES LATER I DON'T FEEL LIKE CHANGING IT RIGHT NOW
+            // HEY I CHANGED DATABASE PROVIDER LOOK AT ME HOW CLEVER AM I!  SECURITY INCOMING
             var userRecord = new UserModel();
             try
             {
-                userRecord = DBHelper.BindRecordToClass<UserModel>("users", whereStr)[0];
+                // Create filter
+                var builder = Builders<BsonDocument>.Filter;
+                var filter = builder.Eq("UserName", username) & builder.Eq("Password", password);
+                List<BsonDocument> queryResult = DBHelper.findRecordsSync("users", filter);
+                // Get first user returned
+                DBHelper.fromBsonDoc<UserModel>(queryResult[0]);
             }
             catch (Exception)
             {
